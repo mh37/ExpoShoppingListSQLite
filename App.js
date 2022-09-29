@@ -1,6 +1,8 @@
+
 import { useState, useEffect } from "react";
 import {
   Platform,
+  Button,
   ScrollView,
   StyleSheet,
   Text,
@@ -28,14 +30,13 @@ function openDatabase() {
 
 const db = openDatabase();
 
-function Items({ amount: amountHeading, onPressItem }) {
+function Items({onPressItem}) {
   const [items, setItems] = useState(null);
 
   useEffect(() => {
     db.transaction((tx) => {
       tx.executeSql(
-        `select * from items where amount = ?;`,
-        [amountHeading ? 1 : 0],
+        `select * from items;`, [],
         (_, { rows: { _array } }) => setItems(_array)
       );
     });
@@ -55,7 +56,6 @@ function Items({ amount: amountHeading, onPressItem }) {
           key={id}
           onPress={() => onPressItem && onPressItem(id)}
           style={{
-            backgroundColor: "#fff",
             borderColor: "#000",
             borderWidth: 1,
             padding: 8,
@@ -103,25 +103,10 @@ export default function App() {
   return (
     <View style={styles.container}>
       <Text style={styles.heading}>Shopping List</Text>
-
-      {Platform.OS === "web" ? (
-        <View
-          style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-        >
-          <Text style={styles.heading}>
-            Expo SQlite is not supported on web!
-          </Text>
-        </View>
-      ) : (
         <>
           <View style={styles.flexRow}>
             <TextInput
               onChangeText={(productText) => setProductText(productText)}
-              onSubmitEditing={() => {
-                add(productText, amountText);
-                setProductText(null);
-                setAmountText(null);
-              }}
               placeholder="Product"
               style={styles.input}
               value={productText}
@@ -131,6 +116,14 @@ export default function App() {
               placeholder="Amount"
               style={styles.input}
               value={amountText}
+            />
+            <Button 
+              title="Save"
+              onPress={() => {
+                add(productText, amountText);
+                setProductText(null);
+                setAmountText(null);
+              }}
             />
           </View>
           <ScrollView style={styles.listArea}>
@@ -150,7 +143,6 @@ export default function App() {
             />
           </ScrollView>
         </>
-      )}
     </View>
   );
 }
@@ -172,14 +164,14 @@ const styles = StyleSheet.create({
     textAlign: "center",
   },
   flexRow: {
-    flexDirection: "row",
+    flex: 0.5
   },
   input: {
     borderColor: "#4630eb",
     borderRadius: 4,
     borderWidth: 1,
-    flex: 1,
-    height: 48,
+    
+    height: 32,
     margin: 16,
     padding: 8,
   },
